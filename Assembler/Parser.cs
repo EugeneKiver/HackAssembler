@@ -19,55 +19,16 @@ namespace Assembler
     {
         string[] lines;
         List<string> code;
-        string srcExt;
-        string destExt;
-        string errMsg;
-        string file;
-        string path;
         int currentIndex;
-        int error;
+
 
         /// <summary>
-        /// Initializes all vars and open's a file.</summary>
-        public Parser(string src, string dest, string err, string arg)
-        {
-            srcExt = src;
-            destExt = dest;
-            errMsg = err;
-            file = arg;
+        /// Initializes all vars and opens a file.</summary>
+        public Parser(string[] inputCode)
+        {  
             currentIndex = -1;
-            error = 0;
-            code = new List<string>();
-
-            try
-            {
-                path = Path.GetFullPath(file);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(errMsg + path);
-                error = 1;
-                return;
-            }
-
-            if (path.EndsWith(srcExt, System.StringComparison.CurrentCultureIgnoreCase))
-            {
-                lines = System.IO.File.ReadAllLines(path);
-                /*foreach (string line in lines)
-                {
-                    Console.WriteLine(line);
-                }*/
-            }
-            else
-            {
-                Console.WriteLine(errMsg + path);
-                error = 1;
-                return;
-            }
-            //path = path.Replace(".asm", ".hack");
-            //Console.WriteLine("dest path: " + path);
-            //System.IO.File.WriteAllLines(path, lines);
-            RemoveComments();
+            lines = inputCode;
+            code = new List<string>();      
         }
 
         /// <summary>
@@ -90,7 +51,7 @@ namespace Assembler
             if(HasMoreCommands())
             {
                 currentIndex++;
-                Console.WriteLine("currentIndex=" + currentIndex);
+                //Console.WriteLine("currentIndex=" + currentIndex);
             }
         }
 
@@ -102,7 +63,10 @@ namespace Assembler
         /// - L_COMMAND (actually, pseudocommand) for (Xxx) where Xxx is a symbol.</remarks>
         public Command CommandType()
         {
-            return Command.ERROR;
+            string line = code[currentIndex];
+            if (line.StartsWith("@")) { return Command.A_COMMAND; }
+            else { return Command.B_COMMAND; }
+            //return Command.ERROR;
         }
 
         /// <summary>
@@ -111,7 +75,10 @@ namespace Assembler
         /// Should be called only when commandType() is A_COMMAND or L_COMMAND. </remarks>
         public string Symbol()
         {
-            return "";
+            string line = code[currentIndex];
+            line = line.TrimStart(new char[] { '@' });
+            //Console.WriteLine("symbol is " + line);
+            return line;
         }
 
         /// <summary>
@@ -120,7 +87,12 @@ namespace Assembler
         ///  Should be called only when commandType() is C_COMMAND.</remarks>
         public string Dest()
         {
-            return "";
+            string curLine = code[currentIndex];
+            string[] parts = curLine.Split(new char[] { '=', ';' });
+            int index = curLine.IndexOf('=');
+            if (index < 0) { curLine = ""; }
+            else { curLine = parts[0]; }
+            return curLine;
         }
 
         /// <summary>
@@ -129,7 +101,12 @@ namespace Assembler
         ///  Should be called only when commandType() is C_COMMAND.</remarks>
         public string Comp()
         {
-            return "";
+            string curLine = code[currentIndex];
+            string[] parts = curLine.Split(new char[] { '=', ';' });
+            int index = curLine.IndexOf('=');
+            if (index < 0) { curLine = parts[0]; }
+            else { curLine = parts[1]; }
+            return curLine;
         }
 
         /// <summary>
@@ -138,14 +115,23 @@ namespace Assembler
         ///  Should be called only when commandType() is C_COMMAND.</remarks>
         public string Jump()
         {
-            return "";
+            string curLine = code[currentIndex];
+            string[] parts = curLine.Split(new char[] { '=', ';' });
+            if (parts.Length == 3) { curLine = parts[2]; }
+            else 
+            if (curLine.IndexOf(';') > -1) 
+            {
+                    int index1 = curLine.IndexOf('=');
+                    curLine = curLine = parts[1];
+            } else { curLine = ""; }
+            return curLine;
         }
 
         /// <summary>
         /// Removes comments and white spaces.</summary>
-        private void RemoveComments()
+        public void RemoveComments()
         {
-            if (error > 0) { return; }
+            //if (error > 0) { return; }
             foreach (string line in lines)
             {
                 string curLine = line;
@@ -155,14 +141,17 @@ namespace Assembler
                 curLine = curLine.Trim();
                 if (curLine == "") { continue; }
                 code.Add(curLine);
-                Console.WriteLine(curLine);
             }
             //currentIndex = 0;
-            Console.WriteLine("code length is: " + code.Count);
+            //Console.WriteLine("code length is: " + code.Count);
             if (code.Count < 1)
             {
-                error = 1;
+                //error = 1;
                 Console.WriteLine("file doesn't contain any code");
+            }
+            for (int i = 0; i < code.Count; i++)
+            {
+                Console.WriteLine(i + ": " + code[i]);
             }
         }
 

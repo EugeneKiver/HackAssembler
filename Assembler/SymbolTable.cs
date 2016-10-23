@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,13 +8,17 @@ using System.Threading.Tasks;
 namespace Assembler
 {
     class SymbolTable
-    {
+    {       
+        Hashtable variables;
+        Hashtable tags;
+
+
         /// <summary>
         /// Create empty table</summary>
         SymbolTable()
         {
 
-        }
+        }      
 
         /// <summary>
         /// Adds the pair (symbol, address) to the table.</summary>
