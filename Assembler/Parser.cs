@@ -18,12 +18,14 @@ namespace Assembler
     class Parser
     {
         string[] lines;
+        List<string> code;
         string srcExt;
         string destExt;
         string errMsg;
         string file;
         string path;
         int currentIndex;
+        int error;
 
         /// <summary>
         /// Initializes all vars and open's a file.</summary>
@@ -34,7 +36,9 @@ namespace Assembler
             errMsg = err;
             file = arg;
             currentIndex = -1;
-       
+            error = 0;
+            code = new List<string>();
+
             try
             {
                 path = Path.GetFullPath(file);
@@ -42,6 +46,7 @@ namespace Assembler
             catch (Exception e)
             {
                 Console.WriteLine(errMsg + path);
+                error = 1;
                 return;
             }
 
@@ -56,17 +61,23 @@ namespace Assembler
             else
             {
                 Console.WriteLine(errMsg + path);
+                error = 1;
                 return;
             }
             //path = path.Replace(".asm", ".hack");
             //Console.WriteLine("dest path: " + path);
             //System.IO.File.WriteAllLines(path, lines);
+            RemoveComments();
         }
 
         /// <summary>
         /// Are there more commands in the input?</summary>
         public bool HasMoreCommands()
         {
+            if ((code.Count-1) - currentIndex > 0)
+            {
+                return true;
+            }
             return false;
         }
 
@@ -75,7 +86,13 @@ namespace Assembler
         /// <remarks>
         /// Should be called only if hasMoreCommands() is true. Initially there is no current command.</remarks>
         public void Advance()
-        { }
+        {
+            if(HasMoreCommands())
+            {
+                currentIndex++;
+                Console.WriteLine("currentIndex=" + currentIndex);
+            }
+        }
 
         /// <summary>
         /// Returns the type of the current command.</summary>
@@ -125,16 +142,28 @@ namespace Assembler
         }
 
         /// <summary>
-        /// TODO Returns the symbol or decimal Xxx of the current command @Xxx or (Xxx).</summary>
-        /// <remarks>
-        /// Should be called only when commandType() is A_COMMAND or L_COMMAND. </remarks>
-        private string[] cleanCode(string[] lines)
+        /// Removes comments and white spaces.</summary>
+        private void RemoveComments()
         {
+            if (error > 0) { return; }
             foreach (string line in lines)
             {
-                Console.WriteLine(line);
+                string curLine = line;
+                if (curLine.StartsWith("//")) { continue; }
+                int index = curLine.IndexOf("//");
+                if (index > -1) { curLine = curLine.Remove(index); }
+                curLine = curLine.Trim();
+                if (curLine == "") { continue; }
+                code.Add(curLine);
+                Console.WriteLine(curLine);
             }
-            return lines;
+            //currentIndex = 0;
+            Console.WriteLine("code length is: " + code.Count);
+            if (code.Count < 1)
+            {
+                error = 1;
+                Console.WriteLine("file doesn't contain any code");
+            }
         }
 
 

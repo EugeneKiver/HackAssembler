@@ -12,7 +12,16 @@ namespace Assembler
         static void Main(string[] args)
         {
             Parser parser = new Parser(".asm", ".hack",
-                "no file found", args[0]);
+                "no file found: ", args[0]);
+            while(true)
+            {
+                if(parser.HasMoreCommands())
+                {
+                    parser.Advance();
+                }
+                else { break; }
+            }
+            parser.HasMoreCommands();
             Console.ReadKey();
         }
     }
