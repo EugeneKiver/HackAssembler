@@ -20,7 +20,7 @@ namespace Assembler
         string[] lines;
         List<string> code;
         int currentIndex;
-
+        SymbolTable table;
 
         /// <summary>
         /// Initializes all vars and opens a file.</summary>
@@ -28,7 +28,8 @@ namespace Assembler
         {  
             currentIndex = -1;
             lines = inputCode;
-            code = new List<string>();      
+            code = new List<string>();
+            table = SymbolTable.Instance;     
         }
 
         /// <summary>
@@ -64,7 +65,13 @@ namespace Assembler
         public Command CommandType()
         {
             string line = code[currentIndex];
-            if (line.StartsWith("@")) { return Command.A_COMMAND; }
+            if (line.StartsWith("@"))
+            {
+                int n;
+                bool isInt = Int32.TryParse(this.Symbol(), out n );
+                if (isInt) { return Command.A_COMMAND; }
+                else { return Command.L_COMMAND; }
+            }
             else { return Command.B_COMMAND; }
             //return Command.ERROR;
         }
@@ -140,6 +147,14 @@ namespace Assembler
                 if (index > -1) { curLine = curLine.Remove(index); }
                 curLine = curLine.Trim();
                 if (curLine == "") { continue; }
+                if (curLine.StartsWith("("))
+                {
+                    int pos = code.Count;
+                    string[] parts = curLine.Split(new char[] { '(', ')' });
+                    table.AddEntry(parts[1], pos);
+                    Console.WriteLine("Label: " + parts[1] + " at " + pos);
+                    continue;
+                }
                 code.Add(curLine);
             }
             //currentIndex = 0;

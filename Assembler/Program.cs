@@ -17,9 +17,11 @@ namespace Assembler
             string file = args[0] ;
             string path = "";
             int error = 0;
+            int commandLength = 16;
             string[] lines;
             List<string> binaryCode = new List<string>();
-            
+            SymbolTable table = SymbolTable.Instance;
+
             try
             {
                 path = Path.GetFullPath(file);
@@ -51,8 +53,9 @@ namespace Assembler
             Code coder = new Code();
 
             int iteration = 0;
+            int variableAddress = 16;
             while (true)
-            {
+            {      
                 iteration++;
                 if(parser.HasMoreCommands())
                 {
@@ -65,7 +68,7 @@ namespace Assembler
 
                             symbol = Int32.Parse(parser.Symbol());
                             string binary = Convert.ToString(symbol, 2);
-                            for (int i = 0; i < (16 - binary.Length); i++)
+                            for (int i = 0; i < (commandLength - binary.Length); i++)
                             {
                                 command += "0";
                             }
@@ -74,6 +77,7 @@ namespace Assembler
                             break;
                         case Command.B_COMMAND:
                             string dest = parser.Dest();
+
 
                             string destCode = coder.Dest(dest);
                             string comp = parser.Comp();
@@ -84,15 +88,25 @@ namespace Assembler
                             command = "111" + compCode + destCode + jumpCode;
 
                             Console.WriteLine((iteration - 1) + ": " + command + " |dest: " + dest + " " + destCode + "|comp: " + comp + " " + compCode + "|jump: " + jump + " " + jumpCode);
-                            //Console.WriteLine("destCode: " + destCode);
-                            //Console.WriteLine("comp: " + comp);
-                            //Console.WriteLine("compCode: " + compCode);
-                            //Console.WriteLine("jump: " + jump);
-                            //Console.WriteLine("jumpCode: " + jumpCode);
-                            //Console.WriteLine("DEST: " + parser.Dest());
 
                             break;
                         case Command.L_COMMAND:
+                            symbol = 0;
+                            if (!table.Contains(parser.Symbol()))
+                            {
+                                table.AddEntry(parser.Symbol(), variableAddress);
+                                Console.WriteLine("variable added " + parser.Symbol() + " at " + variableAddress);
+                                variableAddress++;
+                            }
+
+                            symbol = table.GetAddress(parser.Symbol());                           
+                            binary = Convert.ToString(symbol, 2);
+                            for (int i = 0; i < (commandLength - binary.Length); i++)
+                            {
+                                command += "0";
+                            }
+                            command += binary;
+                            Console.WriteLine((iteration - 1) + ": " + command + " |L-instruction");
                             break;
                         default:
                             break;

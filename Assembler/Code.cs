@@ -37,15 +37,15 @@ namespace Assembler
         private void initComp()
         {
             comp = new Dictionary<string, string>();
-            comp.Add("0", "0101010");
-            comp.Add("1", "1111111");
-            comp.Add("-1", "0111010");
-            comp.Add("D", "0001100");
-            comp.Add("A", "0110000");
-            comp.Add("!D", "0001101");
-            comp.Add("!A", "0110011");
-            comp.Add("-D", "0001111");
-            comp.Add("-A", "0110011");
+            comp.Add("0",   "0101010");
+            comp.Add("1",   "0111111");
+            comp.Add("-1",  "0111010");
+            comp.Add("D",   "0001100");
+            comp.Add("A",   "0110000");
+            comp.Add("!D",  "0001101");
+            comp.Add("!A",  "0110001");
+            comp.Add("-D",  "0001111");
+            comp.Add("-A",  "0110011");
             comp.Add("D+1", "0011111");
             comp.Add("A+1", "0110111");
             comp.Add("D-1", "0001110");
@@ -56,18 +56,10 @@ namespace Assembler
             comp.Add("D&A", "0000000");
             comp.Add("D|A", "0010101");
 
-            //comp.Add("0", "0101010");
-            //comp.Add("1", "1111111");
-            //comp.Add("-1", "0111010");
-            //comp.Add("D", "0001100");
-            comp.Add("M", "1110000");
-            //comp.Add("!D", "0001101");
-            comp.Add("!M", "1110011");
-            //comp.Add("-D", "0001111");
-            comp.Add("-M", "1110011");
-            //comp.Add("D+1", "0011111");
+            comp.Add("M",   "1110000");
+            comp.Add("!M",  "1110001");
+            comp.Add("-M",  "1110011");
             comp.Add("M+1", "1110111");
-            //comp.Add("D-1", "0001110");
             comp.Add("M-1", "1110010");
             comp.Add("D+M", "1000010");
             comp.Add("D-M", "1010011");
@@ -80,7 +72,7 @@ namespace Assembler
         private void initDest()
         {
             dest = new Dictionary<string, string>();
-            dest.Add("",    "000");
+            dest.Add("",     "000");
             dest.Add("M",    "001");
             dest.Add("D",    "010");
             dest.Add("MD",   "011");
